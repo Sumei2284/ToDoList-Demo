@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <title>ToDoList</title>
+    
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+  
+    <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-analytics.js"></script>
+  
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="css/ply.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .github-corner:hover .octo-arm {
+            animation: octocat-wave 560ms ease-in-out
+        }
+
+        @keyframes octocat-wave {
+            0%,
+            100% {
+                transform: rotate(0)
+            }
+            20%,
+            60% {
+                transform: rotate(-25deg)
+            }
+            40%,
+            80% {
+                transform: rotate(10deg)
+            }
+        }
+
+        @media (max-width: 500px) {
+            .github-corner:hover .octo-arm {
+                animation: none
+            }
+            .github-corner .octo-arm {
+                animation: octocat-wave 560ms ease-in-out
+            }
+        }
+
+        @media (max-width:575px) {
+            .hidden-xs-down {
+                display: none !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+        <h2>註冊</h2>
+        <lable for="account">電子郵件(帳號)</lable>
+        <input id="account" type="text">
+        <lable for="pwd">密碼</lable>
+        <input id="pwd" type="password">
+        <lable for="name">姓名</lable>
+        <input id="name" type="text">
+        <button type="submit" id="registerSmtBtn">Signup</button>
+        
+        <h2>登入</h2>
+        <lable for="accountL">帳號</lable>
+        <input id="accountL" type="text">
+        <lable for="pwdL">密碼</lable>
+        <input id="pwdL" type="password">
+        <button type="submit" id="loginSmtBtn">Login</button>
+        <button id="signoutSmtBtn">Signout</button>
+
+        <p id="userStatus">您好！請註冊或登入才能使用主功能喔！</p>
+
+    <ul class="nav nav-pills mb-3 justify-content-center" id="my-nav-bar" role="tablist">
+        <li class="nav-item mx-md-5">
+            <a class="nav-link active" id="pills-all-tab" data-toggle="pill" href="#pills-all" role="tab" aria-selected="true">My Tasks</a>
+        </li>
+        <li class="nav-item mx-md-5">
+            <a class="nav-link" id="pills-progress-tab" data-toggle="pill" href="#pills-progress" role="tab" aria-selected="false">In Progress</a>
+        </li>
+        <li class="nav-item mx-md-5">
+            <a class="nav-link" id="pills-completed-tab" data-toggle="pill" href="#pills-completed" role="tab" aria-selected="false">Completed</a>
+        </li>
+    </ul>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 mb-3">
+                <input type="text" class="form-control p-3" id="add-text-bar" aria-label="Task input" placeholder="+ Add Task">
+            </div>
+        </div>
+        <div class="tab-content row justify-content-center">
+            <div class="col-md-8 tab-pane fade show active mb-3" id="todo_content" role="tabpanel" aria-labelledby="todo_content"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="js/Sortable.js"></script>
+    <script src="js/Ply.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        $(document).ready(function () {
+            get_start.init();
+        });
+    </script>
+</body>
+
+</html>
