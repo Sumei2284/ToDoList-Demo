@@ -33,3 +33,9 @@ DB: firebase or other
 2. 有使用腳本(bash or bat script)或工具做自動佈署經驗
 3. 有實作 CI/CD 經驗
 4. 熟 Git/Gitlab 使用, 了解至少一種 Git flow.
+
+
+### Ref:
+version: 1.0
+1. 會員註冊、登入、登出功能: http://sj82516-blog.logdown.com/posts/1061094
+2. ToDo list的模板跟基本功能: https://github.com/hbdoy/TheF2E_w1_todolist
