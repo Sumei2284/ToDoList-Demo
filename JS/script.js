@@ -29,6 +29,8 @@ var get_start = (function () {
     var loginUser2;
     var signoutSmtBtn = document.querySelector("#signoutSmtBtn");
     var status_msg = document.querySelector("#userStatus");
+    var resetBtn = document.querySelector("#resetpwd");
+    var pwdR = document.querySelector("#pwdR");
     var status_token = 0; // 判斷使用者驗證狀態，0為登出，1為登入
     
 
@@ -50,22 +52,26 @@ var get_start = (function () {
 
     // 資料即時更新,更新後先將資料分類
     function _getData() {
-        db.ref('/todo').on('value', function (snapshot) {
-            var data = snapshot.val();
-            if (data) {
-                // console.log(data);
-                allToDo = data;
-                _filterToDo();
-            }
-        });
-        db.ref('/mysort').on('value', function (snapshot) {
-            var data = snapshot.val();
-            if (data) {
-                // console.log(data);
-                dataSort = data;
-                _filterToDo();
-            }
-        });
+        firebase.auth().signInWithEmailAndPassword(accountL.value, pwdL.value).catch(function(error){
+            loginUser = firebase.auth().currentUser;
+            console.log(loginUser.uid);
+            db.ref('/todo/' + loginUser.uid).on('value', function (snapshot) {
+                var data = snapshot.val();
+                if (data) {
+                    console.log(data);
+                    allToDo = data;
+                    _filterToDo();
+                }
+            });
+            db.ref('/mysort').on('value', function (snapshot) {
+                var data = snapshot.val();
+                if (data) {
+                    // console.log(data);
+                    dataSort = data;
+                    _filterToDo();
+                }
+            });
+        })
     }
     // 
     function _eventBind() {
@@ -93,14 +99,14 @@ var get_start = (function () {
             _updatePage()
         });
     }
-    // 新增代辦事項
+    // 新增代辦事項到資料庫內
     function _addNewTodo(e) {
         loginUser = firebase.auth().currentUser;
         if (e.keyCode == 13 && this.value != "") {
             if (status_token == 1) {
                 // console.log(this.value);
-                db.ref("/todo").push({
-                    uid: loginUser.uid,
+                loginUser = firebase.auth().currentUser;
+                db.ref("/todo/"+ loginUser.uid).push({
                     content: this.value,
                     comment: "",
                     done: "no",
@@ -380,7 +386,8 @@ var get_start = (function () {
                         todo_content.innerHTML = "";
                     }
                     // console.log(todoLen.all);
-                    db.ref("/todo/" + $(e.target)[0].dataset.key).remove();
+                    loginUser = firebase.auth().currentUser;
+                    db.ref("/todo/"+ loginUser.uid+ "/" + $(e.target)[0].dataset.key).remove();
                     // 刪除mysort中對應的key
                     var allKey = [];
                     var tmp = {};
@@ -426,7 +433,8 @@ var get_start = (function () {
         mydone = mydone || allToDo[mykey].done;
         // title不能修改為空
         if ($tmp[0].value != "") {
-            db.ref("/todo/" + mykey).update({
+                loginUser = firebase.auth().currentUser;
+                db.ref("/todo/"+ loginUser.uid+ "/" + mykey).update({
                 content: $tmp[0].value,
                 comment: $tmp[4].value,
                 star: mystar,
@@ -535,11 +543,11 @@ var get_start = (function () {
         console.log(status_token);
 
         firebase.auth().signInWithEmailAndPassword(accountL.value, pwdL.value).catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        console.log(errorMessage);
-        status_msg.innerHTML = "帳號或密碼有誤，請重新輸入。";
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorMessage);
+            status_msg.innerHTML = "帳號或密碼有誤，請重新輸入。";
         })
         
     },false);
@@ -554,6 +562,47 @@ var get_start = (function () {
             console.log("User sign out error!");
             status_msg.innerHTML = "登出時發生錯誤。";
         })
+    },false);
+
+    // 重設密碼
+    function reAuth(checkPassword) {
+        return new Promise(function(resolve, reject) {
+          var user = firebase.auth().currentUser;
+          var password = pwdL.value;
+          var credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+          user.reauthenticateWithCredential(credential).then(function() {
+              resolve(user)
+          }).catch(function(error) {
+              reject(error.message);
+          });
+        })
+      }
+
+    
+    resetBtn.addEventListener("click", function(){
+        // html 要有一個 <input id="old-password" type="password"> 讓使用者輸入舊密碼
+        // html 要有一個 <input id="new-password" type="password"> 讓使用者輸入新密碼
+
+        // 取得新密碼
+        var newPassword = pwdR.value;
+
+        // 更新密碼
+        reAuth('old-password')
+        .then(function(user) {
+            user.updatePassword(newPassword).then(function() {
+            window.alert('密碼更新完成，請重新登入');
+            
+            // 修改密碼完成後，強制登出並重整一次頁面
+            firebase.auth().signOut().then(function() {
+                window.location.reload();
+            });
+            
+            }).catch(function(error) {
+            console.log(error.message)
+            });
+        }).catch(function(error) {
+            console.log(error.message)
+        });
     },false);
 
     // 初始化：預設是無人登入狀態
