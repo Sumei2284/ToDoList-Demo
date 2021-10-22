@@ -564,7 +564,7 @@ var get_start = (function () {
         })
     },false);
 
-    // 重設密碼
+    // local function: 重設密碼
     function reAuth(checkPassword) {
         return new Promise(function(resolve, reject) {
           var user = firebase.auth().currentUser;
@@ -578,15 +578,13 @@ var get_start = (function () {
         })
       }
 
-    
+    // 點擊重設密碼按鈕: get new password and call the local function reAuth() to compelete updating the password.
     resetBtn.addEventListener("click", function(){
-        // html 要有一個 <input id="old-password" type="password"> 讓使用者輸入舊密碼
-        // html 要有一個 <input id="new-password" type="password"> 讓使用者輸入新密碼
 
         // 取得新密碼
         var newPassword = pwdR.value;
 
-        // 更新密碼
+        // 更新密碼至firebase會員認證內
         reAuth('old-password')
         .then(function(user) {
             user.updatePassword(newPassword).then(function() {
@@ -596,12 +594,20 @@ var get_start = (function () {
             firebase.auth().signOut().then(function() {
                 window.location.reload();
             });
-            
+
             }).catch(function(error) {
             console.log(error.message)
             });
         }).catch(function(error) {
             console.log(error.message)
+        });
+
+        // 更新密碼至firebase資料庫內
+        db.ref('users/' + loginUser.uid).update({
+            password: pwdR.value
+        }).catch(function(error){
+            console.error("寫入使用者資訊錯誤",error);
+            status_msg.innerHTML = "資料有誤，請重新輸入。";
         });
     },false);
 
@@ -625,15 +631,17 @@ var get_start = (function () {
             });
         } else {
             console.log("User is not logined yet.");
-            status_msg.innerHTML = "沒人登入。";
+            status_msg.innerHTML = "您好！請輸入帳號密碼並登入才能使用！";
         }
     });
     
 
     function init() {
-        _getData();
-        _eventBind();
-        // console.log("init");
+        if (status_token == 1){
+            _getData();
+            _eventBind();
+            // console.log("init");
+        }
     }
 
     return {
