@@ -52,7 +52,7 @@ var get_start = (function () {
 
     // 資料即時更新,更新後先將資料分類
     function _getData() {
-        firebase.auth().signInWithEmailAndPassword(accountL.value, pwdL.value).catch(function(error){
+        firebase.auth().createUserWithEmailAndPassword(account.value, pwd.value).then(function(){
             loginUser = firebase.auth().currentUser;
             console.log(loginUser.uid);
             db.ref('/todo/' + loginUser.uid).on('value', function (snapshot) {
@@ -71,7 +71,28 @@ var get_start = (function () {
                     _filterToDo();
                 }
             });
-        })
+        });
+        
+        // firebase.auth().signInWithEmailAndPassword(accountL.value, pwdL.value).catch(function(error){
+        //     loginUser = firebase.auth().currentUser;
+        //     console.log(loginUser.uid);
+        //     db.ref('/todo/' + loginUser.uid).on('value', function (snapshot) {
+        //         var data = snapshot.val();
+        //         if (data) {
+        //             console.log(data);
+        //             allToDo = data;
+        //             _filterToDo();
+        //         }
+        //     });
+        //     db.ref('/mysort').on('value', function (snapshot) {
+        //         var data = snapshot.val();
+        //         if (data) {
+        //             // console.log(data);
+        //             dataSort = data;
+        //             _filterToDo();
+        //         }
+        //     });
+        // })
     }
     // 
     function _eventBind() {
@@ -114,11 +135,11 @@ var get_start = (function () {
                     created_time: _DateTimezone(8),
                     update_time: _DateTimezone(8)
                 });
+                console.log("insert new todo");
                 this.value = "";
-            }else if (status_token == 0) {
-                alert("請登入帳戶，才能使用該功能。");
+            }else{
+            alert("請登入帳戶，才能使用該功能。");
             }
-            
         }
     }
 
@@ -525,15 +546,7 @@ var get_start = (function () {
             var errorMsg = error.message;
             console.log(errorMsg);
             status_msg.innerHTML = "註冊資料有誤，請重新輸入。";
-            });
-        firebase.auth().signOut().then(function() {
-            console.log("User sign out!");
-            status_msg.innerHTML = "您已完成註冊，請重新登入。";
-            status_token = 0;
-        }, function(error) {
-            console.log("User sign out error!");
-            status_msg.innerHTML = "登出時發生錯誤。";
-        })       
+        });
     },false);
 
     //登入
@@ -557,6 +570,7 @@ var get_start = (function () {
         firebase.auth().signOut().then(function() {
             console.log("User sign out!");
             status_msg.innerHTML = "您已登出。";
+            window.location.reload();
             status_token = 0;
         }, function(error) {
             console.log("User sign out error!");
@@ -637,11 +651,10 @@ var get_start = (function () {
     
 
     function init() {
-        if (status_token == 1){
-            _getData();
-            _eventBind();
-            // console.log("init");
-        }
+        _getData();
+        _eventBind();
+        // console.log("init");
+        
     }
 
     return {
