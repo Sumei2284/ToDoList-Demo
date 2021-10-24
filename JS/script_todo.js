@@ -18,22 +18,8 @@ var get_start = (function () {
     var allToDo_sort = [];
 
     // Variables about Auth function :
-    var loginUser;
-    var account = document.querySelector("#account");
-    var pwd = document.querySelector("#pwd");
-    var registerSmtBtn = document.querySelector("#registerSmtBtn");
-    var _name = document.querySelector("#name");
-    var accountL = document.getElementById("accountL");
-    var pwdL = document.getElementById("pwdL");
-    var loginSmtBtn = document.getElementById("loginSmtBtn");
-    var loginUser2;
-    var signoutSmtBtn = document.querySelector("#signoutSmtBtn");
-    var status_msg = document.querySelector("#userStatus");
-    var resetBtn = document.querySelector("#resetpwd");
-    var pwdR = document.querySelector("#pwdR");
-    var status_token = 0; // 判斷使用者驗證狀態，0為登出，1為登入
-    
-
+    var account = "test1@gmail.com";
+    var password = "123456";
 
 
     // Initialize Firebase
@@ -52,13 +38,12 @@ var get_start = (function () {
 
     // 資料即時更新,更新後先將資料分類
     function _getData() {
-        firebase.auth().createUserWithEmailAndPassword(account.value, pwd.value).then(function(){
+        firebase.auth().signInWithEmailAndPassword(account, password).then(function(){
             loginUser = firebase.auth().currentUser;
-            console.log(loginUser.uid);
             db.ref('/todo/' + loginUser.uid).on('value', function (snapshot) {
                 var data = snapshot.val();
                 if (data) {
-                    console.log(data);
+                    //console.log(data);
                     allToDo = data;
                     _filterToDo();
                 }
@@ -71,28 +56,13 @@ var get_start = (function () {
                     _filterToDo();
                 }
             });
+        }).catch(function(error){
+            console.log('有錯誤');
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode);
+            console.log(errorMessage);
         });
-        
-        // firebase.auth().signInWithEmailAndPassword(accountL.value, pwdL.value).catch(function(error){
-        //     loginUser = firebase.auth().currentUser;
-        //     console.log(loginUser.uid);
-        //     db.ref('/todo/' + loginUser.uid).on('value', function (snapshot) {
-        //         var data = snapshot.val();
-        //         if (data) {
-        //             console.log(data);
-        //             allToDo = data;
-        //             _filterToDo();
-        //         }
-        //     });
-        //     db.ref('/mysort').on('value', function (snapshot) {
-        //         var data = snapshot.val();
-        //         if (data) {
-        //             // console.log(data);
-        //             dataSort = data;
-        //             _filterToDo();
-        //         }
-        //     });
-        // })
     }
     // 
     function _eventBind() {
@@ -107,14 +77,17 @@ var get_start = (function () {
                 _saveDataSort();
             },
         });
+        //切換頁面至全部的代辦事項
         page_all.addEventListener("click", () => {
             nowPage = "all";
             _updatePage()
         });
+        //切換頁面至進行中的代辦事項
         page_progress.addEventListener("click", () => {
             nowPage = "progress";
             _updatePage()
         });
+        //切換頁面至已完成的代辦事項
         page_completed.addEventListener("click", () => {
             nowPage = "completed";
             _updatePage()
@@ -124,22 +97,19 @@ var get_start = (function () {
     function _addNewTodo(e) {
         loginUser = firebase.auth().currentUser;
         if (e.keyCode == 13 && this.value != "") {
-            if (status_token == 1) {
-                // console.log(this.value);
-                loginUser = firebase.auth().currentUser;
-                db.ref("/todo/"+ loginUser.uid).push({
-                    content: this.value,
-                    comment: "",
-                    done: "no",
-                    star: "no",
-                    created_time: _DateTimezone(8),
-                    update_time: _DateTimezone(8)
-                });
-                console.log("insert new todo");
-                this.value = "";
-            }else{
-            alert("請登入帳戶，才能使用該功能。");
-            }
+            // console.log(this.value);
+            loginUser = firebase.auth().currentUser;
+            db.ref("/todo/"+ loginUser.uid).push({
+                content: this.value,
+                comment: "",
+                done: "no",
+                star: "no",
+                created_time: _DateTimezone(8),
+                update_time: _DateTimezone(8)
+            });
+            console.log("新增一筆代辦事項：",this.value);
+            this.value = "";
+            
         }
     }
 
@@ -311,6 +281,7 @@ var get_start = (function () {
         todo_content.innerHTML = str;
     }
 
+    //於頁面底部顯示剩餘數量及已完成數量
     function _checkLenText() {
         if (nowPage === "all" || nowPage === "progress") {
             if (todoLen.progress == 1) {
@@ -342,6 +313,7 @@ var get_start = (function () {
             tmp[i] = allKey[i];
         }
         db.ref("/mysort").set(tmp);
+        console.log(tmp);
     }
 
     function _checkForAction(e) {
@@ -523,138 +495,10 @@ var get_start = (function () {
         }
     }
 
-
-    //Email/Pwd註冊
-    registerSmtBtn.addEventListener("click", function(){
-        console.log(account.value);
-        firebase.auth().createUserWithEmailAndPassword(account.value, pwd.value).then(function(){
-            //登入成功後，取得登入使用者資訊
-            loginUser = firebase.auth().currentUser;
-            console.log("註冊使用者為: ",loginUser.uid);
-            //寫入使用者資訊
-            db.ref('users/' + loginUser.uid).set({
-                email: loginUser.email,
-                name: _name.value,
-                password: pwd.value
-            }).catch(function(error){
-                console.error("寫入使用者資訊錯誤",error);
-                status_msg.innerHTML = "註冊資料有誤，請重新輸入。";
-            });
-        }).catch(function(error) {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMsg = error.message;
-            console.log(errorMsg);
-            status_msg.innerHTML = "註冊資料有誤，請重新輸入。";
-        });
-    },false);
-
-    //登入
-    loginSmtBtn.addEventListener("click",function(){
-        
-        status_token = 1;
-        console.log(status_token);
-
-        firebase.auth().signInWithEmailAndPassword(accountL.value, pwdL.value).catch(function(error) {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            console.log(errorMessage);
-            status_msg.innerHTML = "帳號或密碼有誤，請重新輸入。";
-        })
-        
-    },false);
-
-    // 登出
-    signoutSmtBtn.addEventListener("click",function(){
-        firebase.auth().signOut().then(function() {
-            console.log("User sign out!");
-            status_msg.innerHTML = "您已登出。";
-            window.location.reload();
-            status_token = 0;
-        }, function(error) {
-            console.log("User sign out error!");
-            status_msg.innerHTML = "登出時發生錯誤。";
-        })
-    },false);
-
-    // local function: 重設密碼
-    function reAuth(checkPassword) {
-        return new Promise(function(resolve, reject) {
-          var user = firebase.auth().currentUser;
-          var password = pwdL.value;
-          var credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-          user.reauthenticateWithCredential(credential).then(function() {
-              resolve(user)
-          }).catch(function(error) {
-              reject(error.message);
-          });
-        })
-      }
-
-    // 點擊重設密碼按鈕: get new password and call the local function reAuth() to compelete updating the password.
-    resetBtn.addEventListener("click", function(){
-
-        // 取得新密碼
-        var newPassword = pwdR.value;
-
-        // 更新密碼至firebase會員認證內
-        reAuth('old-password')
-        .then(function(user) {
-            user.updatePassword(newPassword).then(function() {
-            window.alert('密碼更新完成，請重新登入');
-            
-            // 修改密碼完成後，強制登出並重整一次頁面
-            firebase.auth().signOut().then(function() {
-                window.location.reload();
-            });
-
-            }).catch(function(error) {
-            console.log(error.message)
-            });
-        }).catch(function(error) {
-            console.log(error.message)
-        });
-
-        // 更新密碼至firebase資料庫內
-        db.ref('users/' + loginUser.uid).update({
-            password: pwdR.value
-        }).catch(function(error){
-            console.error("寫入使用者資訊錯誤",error);
-            status_msg.innerHTML = "資料有誤，請重新輸入。";
-        });
-    },false);
-
-    // 初始化：預設是無人登入狀態
-    firebase.auth().signOut().then(function() {
-        console.log("User sign out!");
-        //status_msg.innerHTML = "您已完成註冊，請重新登入。";
-    }, function(error) {
-        console.log("User sign out error!");
-        status_msg.innerHTML = "登出時發生錯誤。";
-    });
-
-    // 顯示使用者登入狀態
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user && status_token == 1) {
-            console.log("User is logined", user)
-            loginUser = firebase.auth().currentUser;
-            db.ref('/users/' + loginUser.uid +'/name').once('value',e=>{
-                console.log(e.value);
-                status_msg.innerHTML = "您好！" + e.val();
-            });
-        } else {
-            console.log("User is not logined yet.");
-            status_msg.innerHTML = "您好！請輸入帳號密碼並登入才能使用！";
-        }
-    });
-    
-
     function init() {
-        _getData();
         _eventBind();
-        // console.log("init");
-        
+        _getData();
+        //console.log("init");
     }
 
     return {
