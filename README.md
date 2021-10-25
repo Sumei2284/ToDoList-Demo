@@ -1,5 +1,10 @@
 # ToDoList-Demo
 
+### Update:
+2021.10.25 新增為兩個部分：會員功能及待辦事項
+1. 會員功能：使用script_login.js及login.html來實作會員功能（需求第一點）
+2. 待辦事項：使用script_todo.js及todo.html來實作在以登入的情況下之代辦事項功能（需求第二點）
+
 ### Requirement:
 1. 提供會員註冊、登入、重設密碼，主要功能只允許會員使用
 2. TODO List:
@@ -21,11 +26,11 @@
 
 ### 系統架構 (需明確劃分前端/後端/資料庫):
 
-WebAPP: web server, eg github, heroku, firebase
+WebAPP: web server, eg firebase
 
-WebAPI: web server, eg github, heroku, firebase
+WebAPI: web server, eg firebase
 
-DB: firebase or other
+DB: firebase
 
 
 ### 加分項目
